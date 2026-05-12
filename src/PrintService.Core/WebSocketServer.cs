@@ -59,7 +59,7 @@ public class WebSocketServer
             socket.OnMessage = async message =>
             {
                 var response = await _messageHandler.HandleMessageAsync(message);
-                socket.Send(response);
+                await socket.Send(response);
             };
         });
     }

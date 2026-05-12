@@ -19,7 +19,10 @@ public class MessageHandlerTests
             {
                 ["name"] = "John Doe"
             },
-            Options = new ProtocolPrintOptions { Copies = 1 }
+            Options = new PrintOptions
+            {
+                Copies = 1
+            }
         };
         var json = JsonSerializer.Serialize(request);
 
@@ -86,10 +89,6 @@ public class MessageHandlerTests
         var response = JsonSerializer.Deserialize<ErrorResponse>(result);
         Assert.NotNull(response);
         Assert.Equal("error", response!.Status);
-        Assert.Equal("INVALID_JSON", response.ErrorCode);
-    }
-}
-al("error", response!.Status);
         Assert.Equal("INVALID_JSON", response.ErrorCode);
     }
 }

@@ -63,7 +63,7 @@ public class MessageHandler : IMessageHandler
             return action switch
             {
                 "print" => await HandlePrintAsync(doc.RootElement),
-                "getPrinterStatus" => await HandlePrinterStatusAsync(doc.RootElement),
+                "getPrinterStatus" => await HandlePrinterStatusAsync(),
                 "getPrinters" => await HandleGetPrintersAsync(),
                 _ => JsonSerializer.Serialize(new ErrorResponse
                 {
@@ -79,7 +79,6 @@ public class MessageHandler : IMessageHandler
     private async Task<string> HandlePrintAsync(JsonElement root)
     {
         PrintRequest? request;
-
         try
         {
             request = JsonSerializer.Deserialize<PrintRequest>(root.GetRawText());
@@ -126,48 +125,56 @@ public class MessageHandler : IMessageHandler
             }
         };
 
-        _printQueue.Enqueue(job);
+        await _printQueue.EnqueueAsync(job);
 
         _ = Task.Run(() => ProcessJobAsync(job));
 
-        var response = new PrintResponse
+        return JsonSerializer.Serialize(new PrintResponse
         {
             Status = "accepted",
             RequestId = request.RequestId,
             Message = "Print request accepted",
             PrintedCount = 0
-        };
-
-        return await Task.FromResult(JsonSerializer.Serialize(response));
+        });
     }
 
     private async Task ProcessJobAsync(PrintJob job)
     {
         try
         {
-            await foreach (var batch in _printQueue.ExecuteBatchAsync(job))
-            {
-                await _printerManager.PrintAsync(batch);
-
-                if (_sendProgressAsync is not null)
+            await _printQueue.ExecuteBatchAsync(
+                job,
+                async (batchNumber, copies, cancellationToken) =>
                 {
-                    var progress = new ProgressResponse
+                    var batch = new PrintBatch
                     {
-                        Status = "progress",
-                        RequestId = job.RequestId,
-                        Message = "Printing in progress",
-                        PrintedCount = batch.Current,
-                        Current = batch.Current,
-                        Total = batch.Total
+                        Job = job,
+                        Current = batchNumber,
+                        Total = job.TotalBatches
                     };
 
-                    await _sendProgressAsync(JsonSerializer.Serialize(progress));
-                }
-            }
+                    await _printerManager.PrintAsync(batch);
+
+                    if (_sendProgressAsync is not null)
+                    {
+                        var progress = new ProgressResponse
+                        {
+                            Status = "progress",
+                            RequestId = job.RequestId,
+                            Message = "Printing in progress",
+                            PrintedCount = Math.Min(job.Options.Copies, batchNumber * copies),
+                            Current = batchNumber,
+                            Total = job.TotalBatches
+                        };
+
+                        await _sendProgressAsync(JsonSerializer.Serialize(progress));
+                    }
+                },
+                CancellationToken.None);
 
             if (_sendProgressAsync is not null)
             {
-                var completed = new PrintResponse
+                var done = new PrintResponse
                 {
                     Status = "success",
                     RequestId = job.RequestId,
@@ -175,7 +182,7 @@ public class MessageHandler : IMessageHandler
                     PrintedCount = job.Options.Copies
                 };
 
-                await _sendProgressAsync(JsonSerializer.Serialize(completed));
+                await _sendProgressAsync(JsonSerializer.Serialize(done));
             }
         }
         catch (Exception ex)
@@ -197,7 +204,7 @@ public class MessageHandler : IMessageHandler
         }
     }
 
-    private async Task<string> HandlePrinterStatusAsync(JsonElement root)
+    private Task<string> HandlePrinterStatusAsync()
     {
         var response = new PrinterStatusResponse
         {
@@ -205,10 +212,10 @@ public class MessageHandler : IMessageHandler
             PrinterStatus = _printerManager.GetPrinterStatus()
         };
 
-        return await Task.FromResult(JsonSerializer.Serialize(response));
+        return Task.FromResult(JsonSerializer.Serialize(response));
     }
 
-    private async Task<string> HandleGetPrintersAsync()
+    private Task<string> HandleGetPrintersAsync()
     {
         var response = new
         {
@@ -216,7 +223,7 @@ public class MessageHandler : IMessageHandler
             printers = _printerManager.GetAvailablePrinters()
         };
 
-        return await Task.FromResult(JsonSerializer.Serialize(response));
+        return Task.FromResult(JsonSerializer.Serialize(response));
     }
 
     private static Guid TryGetRequestId(JsonElement root)
