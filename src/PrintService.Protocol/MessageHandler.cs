@@ -15,6 +15,19 @@ public class MessageHandler : IMessageHandler
     private readonly Func<string, PrintTemplate?> _templateLoader;
     private readonly Func<string, Task>? _sendProgressAsync;
 
+    public MessageHandler()
+        : this(
+            new PrinterManager(),
+            new PrintQueue(),
+            _ => new PrintTemplate
+            {
+                Id = "default",
+                Name = "Default",
+                Version = "1.0"
+            })
+    {
+    }
+
     public MessageHandler(
         PrinterManager printerManager,
         PrintQueue printQueue,
@@ -42,7 +55,7 @@ public class MessageHandler : IMessageHandler
                 ErrorCode = "INVALID_JSON",
                 Message = "Failed to parse message as JSON"
             };
-            return Task.FromResult(JsonSerializer.Serialize(error));
+            return JsonSerializer.Serialize(error);
         }
 
         using (doc)
@@ -55,7 +68,7 @@ public class MessageHandler : IMessageHandler
                     ErrorCode = "INVALID_JSON",
                     Message = "Message is missing 'action' field"
                 };
-                return Task.FromResult(JsonSerializer.Serialize(error));
+                return JsonSerializer.Serialize(error);
             }
 
             var action = actionProperty.GetString() ?? string.Empty;
