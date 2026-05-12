@@ -23,6 +23,7 @@
     <ProjectReference Include="..\..\src\PrintService.Commands\PrintService.Commands.csproj" />
     <ProjectReference Include="..\..\src\PrintService.Barcodes\PrintService.Barcodes.csproj" />
     <ProjectReference Include="..\..\src\PrintService.Core\PrintService.Core.csproj" />
+    <ProjectReference Include="..\..\src\PrintService.Protocol\PrintService.Protocol.csproj" />
   </ItemGroup>
 
 </Project>
