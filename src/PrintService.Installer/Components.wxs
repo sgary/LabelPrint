@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+
+  <!--
+    ProductComponents: Supporting files shipped with the product.
+    Template directory is created on install so the service can populate it at runtime.
+  -->
+  <ComponentGroup Id="ProductComponents">
+    <Component Id="TemplatesDirectory" Guid="*" Directory="TEMPLATESFOLDER">
+      <CreateFolder />
+    </Component>
+  </ComponentGroup>
+
+  <!--
+    ServiceComponents: Windows service registration for the PrintService executable.
+    ServiceInstall configures the service to start automatically under LocalSystem.
+    ServiceControl handles start/stop during install and uninstall.
+  -->
+  <ComponentGroup Id="ServiceComponents">
+    <Component Id="ServiceComponent" Guid="*" Directory="INSTALLFOLDER">
+      <File Id="PrintServiceExeService" Source="$(var.PrintService.Core.TargetPath)" KeyPath="yes" />
+      <ServiceInstall
+        Id="ServiceInstall"
+        Type="ownProcess"
+        Vital="yes"
+        Name="PrintService"
+        DisplayName="Print Service"
+        Description="WebSocket-based label printing service"
+        Start="auto"
+        Account="LocalSystem"
+        ErrorControl="normal"
+        Interactive="no" />
+      <ServiceControl
+        Id="ServiceControl"
+        Name="PrintService"
+        Start="install"
+        Stop="both"
+        Remove="uninstall"
+        Wait="yes" />
+    </Component>
+  </ComponentGroup>
+
+  <!--
+    DataComponents: Data directories created under CommonAppDataFolder.
+    The application stores logs, configuration, and templates here.
+  -->
+  <ComponentGroup Id="DataComponents">
+    <Component Id="LogsDirectory" Guid="*" Directory="LOGSFOLDER">
+      <CreateFolder />
+    </Component>
+
+    <Component Id="DataRoot" Guid="*" Directory="DATAFOLDER">
+      <CreateFolder />
+    </Component>
+  </ComponentGroup>
+
+</Wix>
