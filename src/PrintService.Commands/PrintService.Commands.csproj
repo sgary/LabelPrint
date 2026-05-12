@@ -7,4 +7,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\PrintService.Barcodes\PrintService.Barcodes.csproj" />
+    <ProjectReference Include="..\PrintService.Printing\PrintService.Printing.csproj" />
+  </ItemGroup>
+
 </Project>
