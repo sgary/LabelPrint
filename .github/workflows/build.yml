@@ -14,8 +14,7 @@ on:
 
 env:
   DOTNET_VERSION: '8.0.x'
-  WIX_VERSION: '7.0.0'
-  WIX_ACCEPT_OS: "yes"
+  WIX_VERSION: '5.0.2'
 
 jobs:
   build:
