@@ -1,0 +1,64 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main, master, develop ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+  pull_request:
+    branches: [ main, master ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  WIX_VERSION: '7.0.0'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    name: Build and Test
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Setup WiX Toolset
+      run: |
+        dotnet tool install --global wix --version ${{ env.WIX_VERSION }}
+        wix --version
+
+    - name: Restore dependencies
+      run: dotnet restore PrintService.sln
+
+    - name: Build solution
+      run: dotnet build PrintService.sln --configuration Release --no-restore
+
+    - name: Run tests
+      run: dotnet test PrintService.sln --configuration Release --no-build --verbosity normal --logger trx
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results
+        path: '**/TestResults/*.trx'
+
+    - name: Build Installer (MSI)
+      run: |
+        cd src/PrintService.Installer
+        dotnet build --configuration Release --output ../../artifacts/installer
+
+    - name: Upload MSI artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: installer-msi
+        path: artifacts/installer/**/*.msi
+        if-no-files-found: warn

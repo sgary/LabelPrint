@@ -1,0 +1,96 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  WIX_VERSION: '7.0.0'
+
+jobs:
+  release:
+    runs-on: windows-latest
+    name: Create Release
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Setup WiX Toolset
+      run: |
+        dotnet tool install --global wix --version ${{ env.WIX_VERSION }}
+        wix --version
+
+    - name: Get version from tag
+      id: get_version
+      run: |
+        $version = "${{ github.ref_name }}".TrimStart('v')
+        echo "VERSION=$version" >> $env:GITHUB_OUTPUT
+        echo "Version: $version"
+
+    - name: Restore dependencies
+      run: dotnet restore PrintService.sln
+
+    - name: Build solution
+      run: dotnet build PrintService.sln --configuration Release --no-restore
+
+    - name: Run tests
+      run: dotnet test PrintService.sln --configuration Release --no-build --verbosity normal
+
+    - name: Build Installer (MSI)
+      run: |
+        cd src/PrintService.Installer
+        dotnet build --configuration Release --output ../../artifacts/installer
+        cd ../..
+        $msi = Get-ChildItem -Path artifacts/installer -Filter "*.msi" -Recurse | Select-Object -First 1
+        if ($msi) {
+          $newName = "PrintService-${{ steps.get_version.outputs.VERSION }}-x64.msi"
+          Rename-Item -Path $msi.FullName -NewName $newName
+          echo "MSI created: $newName"
+        } else {
+          echo "Error: MSI file not found"
+          exit 1
+        }
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        name: Release ${{ github.ref_name }}
+        draft: false
+        prerelease: ${{ contains(github.ref_name, '-') }}
+        files: artifacts/installer/**/*.msi
+        body: |
+          ## Windows Label Print Service ${{ github.ref_name }}
+
+          ### Installation
+          Download and run the MSI installer: `PrintService-${{ steps.get_version.outputs.VERSION }}-x64.msi`
+
+          ### System Requirements
+          - Windows 10/11 or Windows Server 2019/2022
+          - .NET 8 Runtime (included in installer)
+          - Zebra or Brother label printer
+
+          ### Quick Start
+          1. Install the MSI package
+          2. The service starts automatically
+          3. Open `http://localhost:8088` in your browser to access the management interface
+          4. Configure your printer in Settings
+
+          ### Documentation
+          - [Setup Guide](./docs/setup-guide.md)
+          - [API Documentation](./docs/api-reference.md)
+          - [JavaScript Client](./docs/js-client.md)
+
+          ### What's New
+          See [CHANGELOG.md](./CHANGELOG.md) for detailed changes.
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

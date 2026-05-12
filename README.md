@@ -1,6 +1,12 @@
 # PrintService
 
+[![Build Status](https://github.com/yourusername/PrintService/actions/workflows/build.yml/badge.svg)](https://github.com/yourusername/PrintService/actions)
+[![Release](https://img.shields.io/github/v/release/yourusername/PrintService)](https://github.com/yourusername/PrintService/releases)
+[![.NET 8](https://img.shields.io/badge/.NET-8.0-blue)](https://dotnet.microsoft.com/)
+
 A Windows label printing service with WebSocket API support for thermal label printers. Provides real-time label generation and printing capabilities for Zebra (ZPL), Brother (BPL/ESC/P), and other label printers.
+
+> **Note:** This project targets Windows only and cannot be built on macOS or Linux. Use the [GitHub Actions CI/CD](#building-with-github-actions) for automated Windows builds.
 
 ## Features
 
@@ -14,9 +20,16 @@ A Windows label printing service with WebSocket API support for thermal label pr
 - **Windows Service** — Runs as a native Windows service, starts on boot
 - **Printer Status** — Query online/offline status of configured printers
 
-## Quick Start
+## Installation
 
-### 1. Install
+### Option 1: Download Pre-built MSI (Recommended)
+
+1. Go to [Releases](https://github.com/yourusername/PrintService/releases)
+2. Download the latest MSI file (e.g., `PrintService-v1.0.0-x64.msi`)
+3. Double-click to install
+4. The service starts automatically
+
+### Option 2: Manual Installation
 
 Download the latest release and install as a Windows service:
 
@@ -25,7 +38,11 @@ sc create PrintService binPath="C:\Path\To\PrintService.Core.exe" start=auto
 sc start PrintService
 ```
 
-### 2. Connect from Browser
+## Quick Start
+
+Once the service is installed and running, you can start printing labels from your web application:
+
+### 1. Connect from Browser
 
 ```html
 <script>
@@ -54,7 +71,7 @@ sc start PrintService
 </script>
 ```
 
-### 3. Done
+### 2. Done
 
 Your labels will be sent to the configured printer. See the [Setup Guide](docs/setup-guide.md) for detailed instructions.
 
@@ -91,23 +108,56 @@ PrintService/
 
 ### Prerequisites
 
+- Windows 10/11 or Windows Server 2019/2022
 - .NET 8 SDK
-- An IDE (VS 2022, Rider, VS Code)
+- Visual Studio 2022 or JetBrains Rider (VS Code with C# extension also works)
 
-### Build & Test
+> **Note for macOS/Linux developers:** This project uses Windows-only APIs (`System.ServiceProcess`, `System.Drawing.Printing`) and cannot be built locally. Use the [GitHub Actions workflows](#building-with-github-actions) for automated Windows builds.
+
+### Build & Test (Windows)
 
 ```powershell
-dotnet build
+dotnet restore
+dotnet build --configuration Release
 dotnet test
 ```
 
-### Run Locally
+### Run Locally (Windows)
 
 ```powershell
 dotnet run --project src/PrintService.Core
 ```
 
 The service will start on `ws://localhost:8080` by default.
+
+## Building with GitHub Actions
+
+This project uses **GitHub Actions** for automated CI/CD because it targets Windows-only APIs (`net8.0-windows`) and cannot be built on macOS or Linux.
+
+### Automated Workflows
+
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| **Build & Test** | Push to `main`, PRs | Build solution, run tests, create MSI artifact |
+| **Release** | Tag push (`v*`) | Build, test, and publish MSI to GitHub Releases |
+
+### Creating a Release
+
+1. Update version in your code
+2. Create and push a tag:
+   ```bash
+   git tag -a v1.0.0 -m "Release v1.0.0"
+   git push origin v1.0.0
+   ```
+3. GitHub Actions automatically builds and publishes the MSI to Releases
+
+### Local Development (on Windows)
+
+```powershell
+dotnet build
+dotnet test
+dotnet run --project src/PrintService.Core
+```
 
 ## Documentation
 
