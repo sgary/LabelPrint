@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>PrintService.Printing</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PrintService.Commands\PrintService.Commands.csproj" />
+    <ProjectReference Include="..\PrintService.Barcodes\PrintService.Barcodes.csproj" />
+    <ProjectReference Include="..\PrintService.Protocol\PrintService.Protocol.csproj" />
+  </ItemGroup>
+
+</Project>
