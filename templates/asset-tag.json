@@ -1,0 +1,55 @@
+{
+  "id": "asset-tag",
+  "name": "Asset Tag (50x30mm)",
+  "version": "1.0",
+  "pageSize": {
+    "width": 50,
+    "height": 30,
+    "unit": "mm"
+  },
+  "elements": [
+    {
+      "type": "text",
+      "x": 2,
+      "y": 2,
+      "content": "ASSET: {{AssetID}}",
+      "font": "Arial",
+      "fontSize": 6,
+      "bold": true,
+      "align": "center"
+    },
+    {
+      "type": "text",
+      "x": 2,
+      "y": 8,
+      "content": "{{AssetName}}",
+      "font": "Arial",
+      "fontSize": 4,
+      "bold": false,
+      "align": "center"
+    },
+    {
+      "type": "text",
+      "x": 2,
+      "y": 13,
+      "content": "Dept: {{Department}}",
+      "font": "Arial",
+      "fontSize": 3,
+      "bold": false,
+      "align": "center"
+    },
+    {
+      "type": "qrcode",
+      "x": 2,
+      "y": 17,
+      "content": "{{AssetUrl}}",
+      "format": "DataMatrix",
+      "size": 10,
+      "errorCorrection": "M"
+    }
+  ],
+  "defaultOffset": {
+    "x": 0,
+    "y": 0
+  }
+}

@@ -1,0 +1,124 @@
+{
+  "id": "shipping-label",
+  "name": "Shipping Label (100x150mm)",
+  "version": "1.0",
+  "pageSize": {
+    "width": 100,
+    "height": 150,
+    "unit": "mm"
+  },
+  "elements": [
+    {
+      "type": "text",
+      "x": 5,
+      "y": 3,
+      "content": "RECEIVER",
+      "font": "Arial",
+      "fontSize": 6,
+      "bold": true,
+      "align": "left"
+    },
+    {
+      "type": "text",
+      "x": 5,
+      "y": 9,
+      "content": "{{ReceiverName}}",
+      "font": "Arial",
+      "fontSize": 8,
+      "bold": true,
+      "align": "left"
+    },
+    {
+      "type": "text",
+      "x": 5,
+      "y": 18,
+      "content": "{{ReceiverPhone}}",
+      "font": "Arial",
+      "fontSize": 5,
+      "bold": false,
+      "align": "left"
+    },
+    {
+      "type": "text",
+      "x": 5,
+      "y": 24,
+      "content": "{{ReceiverAddress}}",
+      "font": "Arial",
+      "fontSize": 5,
+      "bold": false,
+      "align": "left"
+    },
+    {
+      "type": "line",
+      "x": 0,
+      "y": 0,
+      "x1": 5,
+      "y1": 34,
+      "x2": 95,
+      "y2": 34,
+      "lineWidth": 1
+    },
+    {
+      "type": "text",
+      "x": 5,
+      "y": 37,
+      "content": "SENDER: {{SenderName}}",
+      "font": "Arial",
+      "fontSize": 4,
+      "bold": false,
+      "align": "left"
+    },
+    {
+      "type": "text",
+      "x": 5,
+      "y": 42,
+      "content": "{{SenderPhone}} | {{SenderAddress}}",
+      "font": "Arial",
+      "fontSize": 4,
+      "bold": false,
+      "align": "left"
+    },
+    {
+      "type": "barcode",
+      "x": 5,
+      "y": 50,
+      "code": "{{TrackingNumber}}",
+      "format": "Code128",
+      "height": 30,
+      "moduleWidth": 2,
+      "showText": true
+    },
+    {
+      "type": "qrcode",
+      "x": 70,
+      "y": 90,
+      "content": "{{TrackingUrl}}",
+      "size": 24,
+      "errorCorrection": "M"
+    },
+    {
+      "type": "text",
+      "x": 5,
+      "y": 120,
+      "content": "Weight: {{Weight}} kg",
+      "font": "Arial",
+      "fontSize": 4,
+      "bold": false,
+      "align": "left"
+    },
+    {
+      "type": "text",
+      "x": 5,
+      "y": 126,
+      "content": "Tracking: {{TrackingNumber}}",
+      "font": "Arial",
+      "fontSize": 4,
+      "bold": false,
+      "align": "left"
+    }
+  ],
+  "defaultOffset": {
+    "x": 0,
+    "y": 0
+  }
+}

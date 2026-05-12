@@ -1,0 +1,64 @@
+{
+  "id": "product-label",
+  "name": "Product Label (60x40mm)",
+  "version": "1.0",
+  "pageSize": {
+    "width": 60,
+    "height": 40,
+    "unit": "mm"
+  },
+  "elements": [
+    {
+      "type": "text",
+      "x": 2,
+      "y": 2,
+      "content": "{{ProductName}}",
+      "font": "Arial",
+      "fontSize": 8,
+      "bold": true,
+      "align": "center"
+    },
+    {
+      "type": "text",
+      "x": 2,
+      "y": 10,
+      "content": "Price: ${{Price}}",
+      "font": "Arial",
+      "fontSize": 12,
+      "bold": true,
+      "align": "center"
+    },
+    {
+      "type": "barcode",
+      "x": 2,
+      "y": 20,
+      "code": "{{SKU}}",
+      "format": "Code128",
+      "height": 12,
+      "moduleWidth": 2,
+      "showText": false
+    },
+    {
+      "type": "text",
+      "x": 2,
+      "y": 33,
+      "content": "SKU: {{SKU}}",
+      "font": "Arial",
+      "fontSize": 4,
+      "bold": false,
+      "align": "left"
+    },
+    {
+      "type": "qrcode",
+      "x": 45,
+      "y": 2,
+      "content": "{{ProductUrl}}",
+      "size": 16,
+      "errorCorrection": "M"
+    }
+  ],
+  "defaultOffset": {
+    "x": 0,
+    "y": 0
+  }
+}
